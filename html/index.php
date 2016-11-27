@@ -6,8 +6,11 @@
         exit();
     }
 
-//$db = new \MongoClient('mongodb://192.168.0.116:12345');
-//$mongo = $db->selectDB('swoole');
+// $db = new \MongoClient('mongodb://192.168.0.116:12345');
+// $collection = $db->selectDB('swoole')->users;
+//     $params = ['name' =>'sun'];
+//     $user = $collection->findOne($params);
+//     var_dump($user);
 //$a = $mongo->discuss_group_record->find();
 //foreach ($a as $k=>$v){
 //    var_dump($v['user']);
@@ -72,7 +75,8 @@
     var selfName  = "<?php echo $_SESSION['user']['name']?>";
     var selfToken = "<?php echo $_SESSION['user']['token']?>";
     var WS;//存放WebSocket实例
-    var MsgLists=[];
+    var MsgLists    = [];
+    var AvatarLists = [];
     connect();
 </script>
 </html>

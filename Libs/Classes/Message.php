@@ -24,11 +24,10 @@ class Message{
      * @param $name
      * @return array|null
      */
-    public static function getUser($name)
+    public static function getUser($filter)
     {
         $collection = self::mongoServer()->users;
-        $params = ['name' => $name];
-        $user = $collection->findOne($params);
+        $user = $collection->findOne($filter);
         return $user;
     }
 
@@ -80,7 +79,7 @@ class Message{
         foreach ($result as $v)
         {
             $tmp = [];
-            $tmp['name']    = $v['user'];
+            $tmp['name']    = $v['name'];
             $tmp['avatar']  = $v['avatar'];
             $tmp['content'] = $v['content'];
             $tmp['time']    = $v['time'];

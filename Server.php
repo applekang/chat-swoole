@@ -80,34 +80,65 @@ class Server{
         echo '客户端'.$request->fd.'连接上来了'.PHP_EOL;
         //每个客户端fd存入
         Storage::addFd($request->fd);
+        //并且更新Fd到数据库
+        $update = ['fd'   => $request->fd];
+        $where   = ['name' => $request->get['name']];
+        Message::updateUser($update,$where);
 
-        //根据request 中的type决定是群聊还是单聊
-        
-        if ($request->get['type'] == 2)
+        //根据request 中的type决定是单聊还是群聊
+        if ($request->get['type'] == 1)
         {
+
+        }
+        elseif ($request->get['type'] == 2)
+        {
+            //获取连接上来的用户的头像
+            $avatar_url = Message::getUser(['name'=>$request->get['name']]);
+
             //消息的格式
             //['name'=>'sun','content'=>'123','time'=>'2016',avatar=>'1.png']
-            $system_all = [
-                'name'=>'系统',
-                'content'=>$request->get['name'].'进入了PHP+Swoole聊天室',
-                'time'=>date('Y-m-d H:i:s'),
-                'avatar'=>'dist/imgs/man.png'
+            $system_all_msg = [
+                'name'    => '系统',
+                'content' => $request->get['name'].'进入了PHP+Swoole聊天室',
+                'time'    => date('Y-m-d H:i:s'),
+                'avatar'  => 'dist/imgs/man.png'
             ];
-            var_dump($request->fd);
+
+            $system_all_addUser = [
+                'avatar' => $avatar_url,
+                'name'   => $request->get['name']
+            ];
+
+            $system_all = [
+                'msg_one'   => $system_all_msg,
+                'addAvatar' =>$system_all_addUser
+                ];
             //连接上来广播所有人,
             $this->broadcast(['success'=>$system_all],$request->fd);
 
             //自己,系统提示，并把所有的聊天记录发送给他
             $msg_all = Message::getAllMsgFromGroup();
-            $system_one = [
-                'name'=>'系统',
-                'content'=>'欢迎来到PHP+Swoole聊天室',
-                'time'=>date('Y-m-d H:i:s'),
-                'avatar'=>'dist/imgs/man.png'
+
+            $system_one_msg = [
+                'name'    => '系统',
+                'content' => '欢迎来到PHP+Swoole聊天室',
+                'time'    => date('Y-m-d H:i:s'),
+                'avatar'  => 'dist/imgs/man.png'
             ];
+            //获取所有的在线用户头像
+            $system_one_allUser = $this->getAllOnlineUser();
             array_push($msg_all, $system_one);
 
-            $this->emitMsg($request->fd, ['success'=>$msg_all]);
+            $msg_all_to_one = [
+
+                'msg_all'      => $msg_all,
+                'onLine_users' => $system_one_allUser
+            ];
+            $this->emitMsg($request->fd, ['success'=>$msg_all_to_one]);
+        }
+        else
+        {
+
         }
 
 
@@ -210,7 +241,7 @@ class Server{
             $msg = 'token不能是空';
         }
 
-        $user = Message::getUser($name);
+        $user = Message::getUser(['name'=>$name]);
         if (!$user) {
             $msg = '用户不存在';
         }
@@ -226,6 +257,23 @@ class Server{
         }
 
         return true;
+    }
+
+    /**
+    *获取所有在线的用户信息
+    */
+    private function getAllOnlineUser()
+    {
+        $onLine = [];
+        $fds = Storage::listFd();
+        foreach ($fds as $k => $v) {
+            $result = Message::getUser(['fd'=>$v]);
+            $onLine[] = [
+                'name'   => $result['name'],
+                'avatar' => $result['avatar']
+            ];
+        }
+        return $onLine;
     }
 
 }

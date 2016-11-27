@@ -100,6 +100,9 @@ function connect() {
 
     WS.onopen = function (event) {
         console.log('connected');
+        //连接成功列表添加自己的头像
+        // var html = '<img src="'+selfUrl+'" class="img-circle" style="width:20px">';
+        // $('.avatar-list').append(html);
     };
 
     WS.onmessage = function (event) {
@@ -115,6 +118,7 @@ function connect() {
 
             if (msg.hasOwnProperty('success'))
             {
+
                 if (MsgLists.length == 0)
                 {
                     MsgLists = msg.success;
