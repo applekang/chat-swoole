@@ -1,0 +1,60 @@
+<div class='col-md-12 context many'>
+    <ul class='list-group'>
+
+        <li class='list-group-item' data-toggle="modal" data-target="#manyModal">
+            <img src="dist/imgs/php.png" style='width:40px' class='img-circle' alt="php">
+            <span>&nbsp;PHP新手群</span>
+
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- 群的弹出窗 -->
+<div class="modal fade" id="manyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    <img src="dist/imgs/php.png" style='width:40px' class='img-circle' alt="php">
+                    <span>&nbsp;PHP新手群</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-md-offset-1 col-md-10" style='overflow:auto;height:300px'>
+                        <ul class="list-group groups" id="groups">
+
+                            <li class="list-group-item" ng-repeat="oneMsg in msgLists">
+                                <img src="{{ oneMsg.avatar }}" style='width:20px' class='img-circle' alt="{{ oneMsg.avatar }}">
+                                <span style="font-size: 14px">&nbsp;{{ oneMsg.name }}</span>
+                                <span style="font-size: 10px">&nbsp;{{ oneMsg.time }}:&nbsp;</span>
+                                <span>{{oneMsg.content}}</span>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-1">
+                        <img ng-src="{{selfUrl}}" style="height: 30px" alt="man">
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control inputMsg" ng-model="Msg" value="" placeholder="CTRL+ENTER 回复">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary btn-send form-control" ng-click="sendMsg()">
+                            发 送
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
