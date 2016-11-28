@@ -4,7 +4,6 @@
         <li class='list-group-item' data-toggle="modal" data-target="#manyModal">
             <img src="dist/imgs/php.png" style='width:40px' class='img-circle' alt="php">
             <span>&nbsp;PHP新手群</span>
-
         </li>
 
     </ul>
@@ -29,21 +28,17 @@
 
                     <div class='col-md-2'>
 
-                        <ul class='list-group'>
-                            <li class='list-group-item avatar-list'>
-                                <img src="dist/imgs/man.png" class='img-circle' style='width:20px'>
+                        <ul class='list-group onlineLists'>
+                            <li class='list-group-item avatar-list' ng-repeat='online in onlineLists'>
+                                <img src="{{ online.avatar }}" class='img-circle' style='width:20px'>&nbsp;
+                                <p>{{ online.name }}</p>
                             </li>
-                            <li class='list-group-item avatar-list'>
-                                <img src="dist/imgs/man.png" class='img-circle' style='width:20px'>
-                            </li>
-                            <li class='list-group-item avatar-list'>
-                                <img src="dist/imgs/man.png" class='img-circle' style='width:20px'>
-                            </li>
+                
                         </ul>
 
                     </div>
 
-                    <div class="form-group col-md-10" style='overflow:auto;height:300px'>
+                    <div class="form-group col-md-10" id='manyFlow' style='overflow:auto;height:300px'>
                         <ul class="list-group groups" id="groups">
 
                             <li class="list-group-item" ng-repeat="oneMsg in msgLists">

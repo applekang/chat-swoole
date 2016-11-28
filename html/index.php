@@ -76,7 +76,7 @@
     var selfToken = "<?php echo $_SESSION['user']['token']?>";
     var WS;//存放WebSocket实例
     var MsgLists    = [];
-    var AvatarLists = [];
+    var OnlineLists = [];
     connect();
 </script>
 </html>

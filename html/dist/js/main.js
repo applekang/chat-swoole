@@ -47,7 +47,9 @@ app.controller('organizationController',function ($scope, $location) {
         }
     };
     //消息内容列表
-    $scope.msgLists = MsgLists;
+    $scope.msgLists    = MsgLists;
+    //在线用户信息列表
+    $scope.onlineLists = OnlineLists;
 
 });
 
@@ -88,21 +90,19 @@ $(document).keypress(function(e){
         //发送消息
         WS.send(getMsg(msg,2))
         $('.inputMsg').val('')
+    
     }
 
 });
 
 
 function connect() {
-    var socketUrl = "ws://192.168.0.116:9501?name="+selfName+'&token='+selfToken+'&type=2';
+    var socketUrl = "ws://192.168.13.191:9501?name="+selfName+'&token='+selfToken+'&type=2';
     console.log(socketUrl)
     WS = new WebSocket(socketUrl);
 
     WS.onopen = function (event) {
         console.log('connected');
-        //连接成功列表添加自己的头像
-        // var html = '<img src="'+selfUrl+'" class="img-circle" style="width:20px">';
-        // $('.avatar-list').append(html);
     };
 
     WS.onmessage = function (event) {
@@ -115,32 +115,17 @@ function connect() {
             WS.close();
         }else {
 
-
             if (msg.hasOwnProperty('success'))
             {
-
-                if (MsgLists.length == 0)
-                {
-                    MsgLists = msg.success;
-                    var html = RenderToGroup(msg.success);
-                    $('#groups').html();
-
-                } else {
-
-                    MsgLists.push(msg.success);
-                    var addHtml = addToGroup(msg.success);
-                    console.log(msg.success)
-                    $('.groups').append(addHtml)
-
-                }
+                //消息内容列表
+                getMsgLists(msg.success)
+                //在线用户列表
+                getOnlineLists(msg.success);
             }
-
 
         }
 
     };
-
-
 
     WS.onclose = function (event) {
         console.log('关闭连接');
@@ -182,9 +167,73 @@ function addToGroup(obj) {
     var html = '';
     html += '<li class="list-group-item groups">';
     html += '<img src="'+obj.avatar+'" style="width:20px" class="img-circle">';
-    html += '<span style="font-size: 14px">&nbsp;'+obj.name+'</span>';
-    html += '<span style="font-size: 10px">&nbsp;'+obj.time+':&nbsp;</span>';
+    html += '<span style="font-size: 14px"> '+obj.name+'</span>';
+    html += '<span style="font-size: 10px"> '+obj.time+':&nbsp;</span>';
     html += '<span>'+obj.content+'</span>';
+    html += '</li>';
+    return html;
+}
+
+
+//服务器推过来的信息
+function getMsgLists(Msg)
+{
+    //1.消息的内容
+    if (Msg.hasOwnProperty('content'))
+    {
+        //推给刚刚进入群组的用户
+        if (MsgLists.length == 0)
+        {
+            MsgLists = Msg.content;
+        }
+        //推给已经在线的用户
+        else
+        {
+            // MsgLists.push(Msg.content);
+            var addHtml = addToGroup(Msg.content);
+            $('#groups').append(addHtml);
+        }
+
+        //让对话框自动滚到底部
+        lct = document.getElementById('manyFlow');
+        if (lct)
+        {
+            lct.scrollTop=Math.max(0,lct.scrollHeight-lct.offsetHeight);
+        }
+        
+    }
+
+}
+
+//服务器推过来的在线用户信息
+function getOnlineLists(Msg)
+{
+    //2.在线用户信息列表
+    if (Msg.hasOwnProperty('onLine_users'))
+    {
+        //推给刚刚进入群组的用户
+        if (OnlineLists.length == 0)
+        {
+            OnlineLists = Msg.onLine_users
+        }
+        //推给已经在线的用户
+        else
+        {
+            // OnlineLists.push(Msg.onLine_users);
+            var addHtml = addToOnlineLists(Msg.onLine_users)
+            $('.onlineLists').append(addHtml);
+        }
+
+    }
+}
+
+//追加新用户到在线列表
+function addToOnlineLists(obj)
+{
+    var html = '';
+    html += '<li class="list-group-item avatar-list">';
+    html += '<img src="'+obj.avatar+'" class="img-circle" style="width:20px"> ';
+    html += '<p>'+obj.name+'</p>';
     html += '</li>';
     return html;
 }

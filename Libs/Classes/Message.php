@@ -3,7 +3,8 @@ namespace Libs\Classes;
 
 class Message{
 
-    protected static $connection = "mongodb://192.168.0.116:12345";
+    // protected static $connection = "mongodb://192.168.0.116:12345";
+    protected static $connection = "mongodb://192.168.13.191:27017";
 
     protected static $db         = 'swoole';
 

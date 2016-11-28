@@ -23,7 +23,7 @@ class Server{
     //当设定的worker进程数小于reactor线程数时，会自动调低reactor线程的数量
     private $workerNum = 4;
     //后台守护进程运行
-    private $daemonize = false; 
+    private $daemonize = false;
     //worker进程在处理完n次请求后结束运行。manager会重新创建一个worker进程。此选项用来防止worker进程内存溢出
     private $maxRequest= 100;
     //此参数将决定最多同时有多少个待accept的连接
@@ -68,7 +68,7 @@ class Server{
             'daemonize'  => $this->daemonize,
             'max_request'=> $this->maxRequest,
             'backlog'    => $this->backlog,
-            'log_file'   => $this->logFile   
+            'log_file'   => $this->logFile
         ];
 
         $this->static->set($params);
@@ -81,7 +81,7 @@ class Server{
         //每个客户端fd存入
         Storage::addFd($request->fd);
         //并且更新Fd到数据库
-        $update = ['fd'   => $request->fd];
+        $update  = ['fd'   => $request->fd];
         $where   = ['name' => $request->get['name']];
         Message::updateUser($update,$where);
 
@@ -94,7 +94,7 @@ class Server{
         {
             //获取连接上来的用户的头像
             $avatar_url = Message::getUser(['name'=>$request->get['name']]);
-
+            $avatar_url = 'dist/imgs/avatar/'.$avatar_url['avatar'];
             //消息的格式
             //['name'=>'sun','content'=>'123','time'=>'2016',avatar=>'1.png']
             $system_all_msg = [
@@ -110,30 +110,31 @@ class Server{
             ];
 
             $system_all = [
-                'msg_one'   => $system_all_msg,
-                'addAvatar' =>$system_all_addUser
+                'content'      => $system_all_msg,
+                'onLine_users' => $system_all_addUser
                 ];
-            //连接上来广播所有人,
+            //连接上来广播所有人(除了自己，1.系统通知消息2.添加新用户到列表)
             $this->broadcast(['success'=>$system_all],$request->fd);
 
             //自己,系统提示，并把所有的聊天记录发送给他
             $msg_all = Message::getAllMsgFromGroup();
-
             $system_one_msg = [
                 'name'    => '系统',
                 'content' => '欢迎来到PHP+Swoole聊天室',
                 'time'    => date('Y-m-d H:i:s'),
                 'avatar'  => 'dist/imgs/man.png'
             ];
+
             //获取所有的在线用户头像
             $system_one_allUser = $this->getAllOnlineUser();
-            array_push($msg_all, $system_one);
+            array_push($msg_all, $system_one_msg);
 
             $msg_all_to_one = [
-
-                'msg_all'      => $msg_all,
+                'content'      => $msg_all,
                 'onLine_users' => $system_one_allUser
             ];
+
+            //通知自己的连接(1.把所有的历史消息推给用户，2：所有在线用户信息推给用户)
             $this->emitMsg($request->fd, ['success'=>$msg_all_to_one]);
         }
         else
@@ -174,7 +175,7 @@ class Server{
 
                 Message::addMsgtoGroup($oneMsg);
                 //同时发送给所有人
-                self::broadcast(['success'=>$oneMsg]);
+                self::broadcast(['success'=>['content'=>$oneMsg]]);
 
             } else {
 
@@ -267,16 +268,18 @@ class Server{
         $onLine = [];
         $fds = Storage::listFd();
         foreach ($fds as $k => $v) {
-            $result = Message::getUser(['fd'=>$v]);
+            $result = Message::getUser(['fd'=>intval($v)]);
             $onLine[] = [
                 'name'   => $result['name'],
-                'avatar' => $result['avatar']
+                'avatar' => 'dist/imgs/avatar/'.$result['avatar']
             ];
         }
         return $onLine;
     }
 
 }
+
+//TODO 进程推出时删除Fdlists集合
 
 $server = new \Server();
 $server->start();
